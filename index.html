@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Financial News Search</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="header">
+        <h1>Financial News Search</h1>
+        <p>Multi-source real-time financial news</p>
+      </header>
+
+      <section class="search-section">
+        <label class="sr-only" for="keyword">Search company or asset</label>
+        <input
+          id="keyword"
+          type="text"
+          placeholder="Enter company or asset (e.g. Tesla, Amazon, Gold)"
+          autocomplete="off"
+        />
+        <button id="searchBtn" type="button">Search</button>
+      </section>
+
+      <main>
+        <div id="status" class="status"></div>
+        <section id="results" class="results" aria-live="polite"></section>
+      </main>
+    </div>
+
+    <script type="module" src="script.js"></script>
+  </body>
+</html>
