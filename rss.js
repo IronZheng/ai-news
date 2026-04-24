@@ -1,27 +1,36 @@
-import { fetchJsonResilient } from "./request.js";
+import { fetchTextViaProxy } from "./request.js";
 import { normalizeText, parseDate, stripHtml } from "./utils.js";
 
-const RSS2JSON_ENDPOINT = "https://api.rss2json.com/v1/api.json";
-
-function toRss2JsonUrl(feedUrl) {
-  const params = new URLSearchParams({ rss_url: feedUrl });
-  return `${RSS2JSON_ENDPOINT}?${params.toString()}`;
+function getBestText(item, selectors) {
+  for (const selector of selectors) {
+    const node = item.querySelector(selector);
+    if (node?.textContent) {
+      return normalizeText(node.textContent);
+    }
+  }
+  return "";
 }
 
 export async function fetchRssFeed(feed) {
-  const payload = await fetchJsonResilient(toRss2JsonUrl(feed.url));
+  const xmlText = await fetchTextViaProxy(feed.url);
+  const xml = new DOMParser().parseFromString(xmlText, "application/xml");
+  const items = Array.from(xml.querySelectorAll("item"));
 
-  if (payload.status !== "ok") {
-    throw new Error(`RSS2JSON request failed for ${feed.name}`);
-  }
+  return items.map((item) => {
+    const title = getBestText(item, ["title"]);
+    const url = getBestText(item, ["link"]);
+    const descriptionRaw = getBestText(item, ["description", "content"]);
+    const source = getBestText(item, ["source"]);
+    const publishedText = getBestText(item, ["pubDate", "published", "dc\\:date"]);
 
-  return (payload.items || []).map((item) => ({
-    title: normalizeText(item.title),
-    url: item.link,
-    summary: stripHtml(item.description || "").slice(0, 220),
-    source: feed.name,
-    publishedAt: parseDate(item.pubDate)
-  }));
+    return {
+      title,
+      url,
+      summary: stripHtml(descriptionRaw).slice(0, 220),
+      source: source || feed.name,
+      publishedAt: parseDate(publishedText)
+    };
+  });
 }
 
 export async function fetchAllRss(feeds) {

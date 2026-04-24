@@ -1,5 +1,5 @@
 import { NEWSAPI_ENDPOINT, NEWSAPI_KEY } from "./config.js";
-import { fetchJsonResilient } from "./request.js";
+import { fetchJsonViaProxy } from "./request.js";
 import { normalizeText, parseDate, stripHtml } from "./utils.js";
 
 export async function fetchNewsApi(keyword) {
@@ -16,15 +16,7 @@ export async function fetchNewsApi(keyword) {
   });
 
   const targetUrl = `${NEWSAPI_ENDPOINT}?${params.toString()}`;
-
-  let payload;
-  try {
-    payload = await fetchJsonResilient(targetUrl);
-  } catch (error) {
-    console.warn("NewsAPI request skipped due to proxy/upstream issue:", error.message);
-    return { articles: [], skipped: true, failed: true };
-  }
-
+  const payload = await fetchJsonViaProxy(targetUrl);
   if (payload.status !== "ok") {
     console.warn("NewsAPI responded with non-ok status:", payload.message || payload.status);
     return { articles: [], skipped: true, failed: true };
