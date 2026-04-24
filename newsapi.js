@@ -18,7 +18,8 @@ export async function fetchNewsApi(keyword) {
   const targetUrl = `${NEWSAPI_ENDPOINT}?${params.toString()}`;
   const payload = await fetchJsonViaProxy(targetUrl);
   if (payload.status !== "ok") {
-    throw new Error(payload.message || "NewsAPI error");
+    console.warn("NewsAPI responded with non-ok status:", payload.message || payload.status);
+    return { articles: [], skipped: true, failed: true };
   }
 
   const articles = (payload.articles || []).map((item) => ({
@@ -29,5 +30,5 @@ export async function fetchNewsApi(keyword) {
     publishedAt: parseDate(item.publishedAt)
   }));
 
-  return { articles, skipped: false };
+  return { articles, skipped: false, failed: false };
 }

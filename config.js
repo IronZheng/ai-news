@@ -1,8 +1,8 @@
 export const NEWSAPI_KEY = "YOUR_NEWSAPI_KEY";
 
 export const RSS_FEEDS = [
-  { name: "Reuters Business", url: "https://feeds.reuters.com/reuters/businessNews" },
-  { name: "Reuters Markets", url: "https://feeds.reuters.com/reuters/marketsNews" },
+  { name: "CNBC", url: "https://www.cnbc.com/id/100003114/device/rss/rss.html" },
+  { name: "MarketWatch", url: "https://feeds.marketwatch.com/marketwatch/topstories/" },
   { name: "Yahoo Finance", url: "https://finance.yahoo.com/rss/" },
   { name: "Investing.com", url: "https://www.investing.com/rss/news.rss" }
 ];

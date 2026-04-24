@@ -100,7 +100,11 @@ async function performSearch() {
     const failedSources = rssResult.failures.length
       ? ` Some sources failed: ${rssResult.failures.join(", ")}.`
       : "";
-    const skippedNewsApi = newsApiResult.skipped ? " NewsAPI skipped (missing API key)." : "";
+    const skippedNewsApi = newsApiResult.failed
+      ? " NewsAPI temporarily unavailable (proxy/upstream error)."
+      : newsApiResult.skipped
+        ? " NewsAPI skipped (missing API key)."
+        : "";
     setStatus(`Showing ${unique.length} results.${failedSources}${skippedNewsApi}`.trim());
     renderResults(unique);
   } catch (error) {
