@@ -1,7 +1,6 @@
 import { NEWSAPI_ENDPOINT, NEWSAPI_KEY } from "./config.js";
+import { fetchJsonResilient } from "./request.js";
 import { normalizeText, parseDate, stripHtml } from "./utils.js";
-
-const CORS_PROXY = "https://api.allorigins.win/raw?url=";
 
 export async function fetchNewsApi(keyword) {
   if (!NEWSAPI_KEY || NEWSAPI_KEY === "YOUR_NEWSAPI_KEY") {
@@ -17,14 +16,18 @@ export async function fetchNewsApi(keyword) {
   });
 
   const targetUrl = `${NEWSAPI_ENDPOINT}?${params.toString()}`;
-  const response = await fetch(`${CORS_PROXY}${encodeURIComponent(targetUrl)}`);
-  if (!response.ok) {
-    throw new Error("NewsAPI request failed");
+
+  let payload;
+  try {
+    payload = await fetchJsonResilient(targetUrl);
+  } catch (error) {
+    console.warn("NewsAPI request skipped due to proxy/upstream issue:", error.message);
+    return { articles: [], skipped: true, failed: true };
   }
 
-  const payload = await response.json();
   if (payload.status !== "ok") {
-    throw new Error(payload.message || "NewsAPI error");
+    console.warn("NewsAPI responded with non-ok status:", payload.message || payload.status);
+    return { articles: [], skipped: true, failed: true };
   }
 
   const articles = (payload.articles || []).map((item) => ({
@@ -35,5 +38,5 @@ export async function fetchNewsApi(keyword) {
     publishedAt: parseDate(item.publishedAt)
   }));
 
-  return { articles, skipped: false };
+  return { articles, skipped: false, failed: false };
 }
