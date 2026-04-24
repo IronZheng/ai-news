@@ -1,6 +1,5 @@
+import { fetchTextViaProxy } from "./request.js";
 import { normalizeText, parseDate, stripHtml } from "./utils.js";
-
-const CORS_PROXY = "https://api.allorigins.win/raw?url=";
 
 function getBestText(item, selectors) {
   for (const selector of selectors) {
@@ -13,12 +12,7 @@ function getBestText(item, selectors) {
 }
 
 export async function fetchRssFeed(feed) {
-  const response = await fetch(`${CORS_PROXY}${encodeURIComponent(feed.url)}`);
-  if (!response.ok) {
-    throw new Error(`RSS request failed for ${feed.name}`);
-  }
-
-  const xmlText = await response.text();
+  const xmlText = await fetchTextViaProxy(feed.url);
   const xml = new DOMParser().parseFromString(xmlText, "application/xml");
   const items = Array.from(xml.querySelectorAll("item"));
 

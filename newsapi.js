@@ -1,7 +1,6 @@
 import { NEWSAPI_ENDPOINT, NEWSAPI_KEY } from "./config.js";
+import { fetchJsonViaProxy } from "./request.js";
 import { normalizeText, parseDate, stripHtml } from "./utils.js";
-
-const CORS_PROXY = "https://api.allorigins.win/raw?url=";
 
 export async function fetchNewsApi(keyword) {
   if (!NEWSAPI_KEY || NEWSAPI_KEY === "YOUR_NEWSAPI_KEY") {
@@ -17,12 +16,7 @@ export async function fetchNewsApi(keyword) {
   });
 
   const targetUrl = `${NEWSAPI_ENDPOINT}?${params.toString()}`;
-  const response = await fetch(`${CORS_PROXY}${encodeURIComponent(targetUrl)}`);
-  if (!response.ok) {
-    throw new Error("NewsAPI request failed");
-  }
-
-  const payload = await response.json();
+  const payload = await fetchJsonViaProxy(targetUrl);
   if (payload.status !== "ok") {
     throw new Error(payload.message || "NewsAPI error");
   }
